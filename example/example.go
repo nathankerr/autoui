@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"math"
 )
 
 type hello struct{}
@@ -23,7 +24,17 @@ func Exported(x, y, z int) int {
 	a multi-line ocomment
 		with code
 */
-func ExportedError(x, y int) (int, error) {
+func ExportedError(x, y, z, a, b, c, alongername int) (int, error) {
 	log.Println("exportederror")
 	return 5, nil
+}
+
+func Capacitence(d, l, n float64) float64 {
+	µ0 := 4 * math.Pi * math.Pow10(-7)
+	A := math.Pow(d/2, 2) * math.Pi
+
+	I := µ0 * (math.Pow(n, 2) * A) / l
+
+	// convert from H to µH
+	return I * math.Pow10(6)
 }

@@ -13,15 +13,26 @@ import (
 var inline = `import QtQuick 2.0
 import QtQuick.Layouts 1.1
 import QtQuick.Controls 1.2
+import QtQuick.Window 2.2
 
-TabView { {{ range . }}
-	{{$function := .Name}}
-	Tab {
-		title: "{{.Name}}"
+Window {
+	id: win
+	width: tabs.implicitWidth
+	title: "{{title}}"
 
-		ScrollView {
+	TabView {
+		id: tabs
+		anchors.top: parent.top
+		anchors.left: parent.left
+		anchors.right: parent.right
+
+		{{ range . }}
+		{{$function := .Name}}
+		Tab {
+			title: "{{.Name}}"
+			 onLoaded: { win.height = implicitHeight + 10}
+
 			GridLayout {
-				anchors.centerIn: parent
 				columns: 2
 
 				Rectangle {
@@ -35,12 +46,19 @@ TabView { {{ range . }}
 				TextField {
 					text: "{{zeroString .Type}}"
 					onEditingFinished: ctrl.set("{{$function}}", "{{.Name}}", text)
+					onAccepted: {
+						ctrl.set("{{$function}}", "{{.Name}}", text)
+						ctrl.run("{{$function}}")
+					}
+					Layout.fillWidth: true
 				}
 				{{ end }}
 
 				Button {
 					Layout.columnSpan: 2
+					Layout.alignment: Qt.AlignHCenter
 					text: "Run {{.Name}}"
+					activeFocusOnPress: true
 					onClicked: ctrl.run("{{.Name}}")
 				}
 
@@ -50,6 +68,7 @@ TabView { {{ range . }}
 				TextField {
 					text: ctrl.{{id $function}}result{{$i}}
 					readOnly: true
+					Layout.fillWidth: true
 				}
 				{{ end }}
 
@@ -59,8 +78,11 @@ TabView { {{ range . }}
 				}
 			}
 		}
+		{{ end }}
 	}
-{{ end }}}`
+}`
+
+var qmlfilename = "inline"
 
 func main() {
 	log.SetFlags(log.Lshortfile)
@@ -75,9 +97,10 @@ func main() {
 
 	// use a custom qml
 	if flag.NArg() == 1 {
-		log.Println(flag.Arg(0))
+		qmlfilename = flag.Arg(0)
+		log.Println(qmlfilename)
 
-		b, err := ioutil.ReadFile(flag.Arg(0))
+		b, err := ioutil.ReadFile(qmlfilename)
 		if err != nil {
 			log.Fatalln(err)
 		}
@@ -92,7 +115,7 @@ func main() {
 
 func run() error {
 	engine := qml.NewEngine()
-	component, err := engine.LoadString("inline", inline)
+	component, err := engine.LoadString(qmlfilename, inline)
 	if err != nil {
 		log.Fatalln(err)
 	}

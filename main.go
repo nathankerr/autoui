@@ -12,6 +12,7 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
 	"text/template"
 
@@ -81,7 +82,7 @@ func main() {
 		},
 		"zeroString": func(t string) string {
 			switch t {
-			case "int":
+			case "int", "float64":
 				return "0"
 			case "error":
 				return "<nil>"
@@ -101,6 +102,14 @@ func main() {
 					}
 					%[1]s := int(%[1]s64)
 				`, name)
+			case "float64":
+				return fmt.Sprintf(`
+					%s, err := strconv.ParseFloat(%[1]sStr, 64)
+					if err != nil {
+						log.Println(err)
+						return
+					}
+				`, name)
 			default:
 				log.Println("unsupported type:", t)
 				return ""
@@ -117,6 +126,13 @@ func main() {
 			}
 
 			return fmt.Sprintf("%s =", strings.Join(results, ", "))
+		},
+		"title": func() string {
+			dir, err := filepath.Abs(".")
+			if err != nil {
+				log.Fatalln(err)
+			}
+			return filepath.Base(dir)
 		},
 	})
 
