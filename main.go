@@ -4,6 +4,7 @@ package main
 // TOOD: add other data types
 
 import (
+	"bytes"
 	"fmt"
 	"go/ast"
 	"go/doc"
@@ -28,7 +29,7 @@ type function struct {
 	Name    string
 	Params  []field
 	Results []field
-	Doc     string
+	Doc     *bytes.Buffer
 }
 
 func filter(fi os.FileInfo) bool {
@@ -63,12 +64,17 @@ func main() {
 			continue
 		}
 
-		functions = append(functions, function{
+		fn := function{
 			Name:    f.Name,
 			Params:  fieldsFor(f.Decl.Type.Params),
 			Results: fieldsFor(f.Decl.Type.Results),
-			Doc:     f.Doc,
-		})
+			Doc:     &bytes.Buffer{},
+		}
+
+		//doc.ToText(fn.Doc, f.Doc, "", "    ", 80)
+		doc.ToHTML(fn.Doc, f.Doc, nil)
+
+		functions = append(functions, fn)
 
 		log.Println(f.Name)
 	}

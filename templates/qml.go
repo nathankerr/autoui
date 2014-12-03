@@ -10,7 +10,7 @@ import (
 	"gopkg.in/qml.v1"
 )
 
-var inline = `import QtQuick 2.0
+var inline = `import QtQuick 2.3
 import QtQuick.Layouts 1.1
 import QtQuick.Controls 1.2
 import QtQuick.Window 2.2
@@ -38,6 +38,17 @@ Window {
 				Rectangle {
 					Layout.columnSpan: 2
 					height: 10
+				}
+
+				TextEdit {
+					Layout.columnSpan: 2
+					Layout.fillWidth: true
+					readOnly: true
+					selectByKeyboard: true
+					selectByMouse: true
+					textFormat: TextEdit.RichText
+
+					text: "{{.Doc}}"
 				}
 
 				{{ range .Params }}Text {
