@@ -116,24 +116,19 @@ func run() error {
 type Control struct {
 	Params map[string]map[string]string
 
-	//{{range .}}{{$function := .Name}}{{range $i, $result := .Results}}
-	{{$function}}result{{$i}} string
-	//{{end}}{{end}}
+	{{range .}}{{$function := .Name}}{{range $i, $result := .Results}}
+	{{$function}}result{{$i}} string{{end}}{{end}}
 }
 
 func (ctrl *Control) Run(function string) {
-	switch function {
-	//{{range .}}{{$function := .Name}}
-	case "{{.Name}}":
-		//{{range .Params}}
+	switch function { {{range .}}{{$function := .Name}}
+	case "{{.Name}}": {{range .Params}}
 		{{.Name}}Str := ctrl.Params["{{$function}}"]["{{.Name}}"]
 		if {{.Name}}Str == "" {
 			{{.Name}}Str = "{{zeroString .Type}}"
 		}
 
-		var {{.Name}} {{.Type}}
-		{{convert .Name .Type}}
-		//{{end}}
+		{{convert .Name .Type}}{{end}}
 
 		var (
 			{{range $i, $result := .Results}}result{{$i}} {{$result.Type}}
@@ -141,18 +136,16 @@ func (ctrl *Control) Run(function string) {
 
 		{{resultList (len .Results)}} {{$function}}({{range .Params}}{{.Name}},{{end}})
 
-		//{{range $i, $result := .Results}}
+		{{range $i, $result := .Results}}
 		ctrl.{{$function}}result{{$i}} = fmt.Sprint(result{{$i}})
 		qml.Changed(ctrl, &ctrl.{{$function}}result{{$i}})
-		//log.Println("result{{$i}}", result{{$i}})
-		//{{end}}
-	//{{end}}
+		{{end}}
+	{{end}}
 	default:
 		log.Println("unhandled function", function)
 	}
 }
 
 func (ctrl *Control) Set(function, param, value string) {
-	log.Println(function, param, value)
 	ctrl.Params[function][param] = value
 }
