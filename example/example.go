@@ -29,7 +29,7 @@ func ExportedError(x, y, z, a, b, c, alongername int) (int, error) {
 	return 5, nil
 }
 
-func Capacitence(d, l, n float64) float64 {
+func Inductance(d, l, n float64) float64 {
 	µ0 := 4 * math.Pi * math.Pow10(-7)
 	A := math.Pow(d/2, 2) * math.Pi
 
